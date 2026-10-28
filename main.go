@@ -9,9 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/Omkar210404/Tidy-Desk/internal/web"
@@ -44,9 +42,9 @@ func main() {
 		app.LoadBins()
 	}
 	url := "http://" + ln.Addr().String() + "/"
-	fmt.Printf("TidyDesk is running at %s\nEverything stays on this computer. Close this window (or press Ctrl+C) to stop TidyDesk.\n", url)
+	fmt.Printf("TidyDesk is running at %s\nEverything stays on this computer. Keep this window open while you use TidyDesk; close it to stop.\n", url)
 	if !*noBrowser {
-		openBrowser(url)
+		go openBrowser(url, app.Visited)
 	}
 	srv := &http.Server{Handler: app.Handler(), ReadHeaderTimeout: 10 * time.Second}
 	if err := srv.Serve(ln); err != nil {
@@ -54,19 +52,21 @@ func main() {
 	}
 }
 
-func openBrowser(url string) {
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
-	case "darwin":
-		cmd = exec.Command("open", url)
-	default:
-		cmd = exec.Command("xdg-open", url)
+// openBrowser opens the page and checks that it actually loaded. If it
+// hasn't after a few seconds it tries a second way, then tells the user.
+func openBrowser(url string, visited <-chan struct{}) {
+	fmt.Println("Opening TidyDesk in your browser...")
+	for attempt := 0; attempt < 2; attempt++ {
+		if err := browserCommand(url, attempt).Start(); err == nil {
+			select {
+			case <-visited:
+				fmt.Println("TidyDesk is open in your browser.")
+				return
+			case <-time.After(8 * time.Second):
+			}
+		}
 	}
-	if err := cmd.Start(); err != nil {
-		fmt.Println("Open this address in your browser:", url)
-	}
+	fmt.Printf("\nYour browser didn't open by itself.\nOpen your browser and go to this address:\n\n    %s\n\n", url)
 }
 
 // fatal prints the error and, when started by double-click, waits so the

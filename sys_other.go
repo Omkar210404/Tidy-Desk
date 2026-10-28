@@ -4,6 +4,8 @@ package main
 
 import (
 	"os"
+	"os/exec"
+	"runtime"
 	"syscall"
 )
 
@@ -21,4 +23,12 @@ func makeUnreadable(path string) (func(), error) {
 		return nil, err
 	}
 	return func() { os.Chmod(path, 0o644) }, nil
+}
+
+// browserCommand opens url in the default browser.
+func browserCommand(url string, attempt int) *exec.Cmd {
+	if runtime.GOOS == "darwin" {
+		return exec.Command("open", url)
+	}
+	return exec.Command("xdg-open", url)
 }

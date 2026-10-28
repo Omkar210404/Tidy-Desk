@@ -56,6 +56,11 @@ type App struct {
 
 	thumbs   *thumbCache
 	thumbSem chan struct{}
+
+	// Visited is closed the first time the page loads, so main can tell
+	// whether the browser really opened.
+	Visited     chan struct{}
+	visitedOnce sync.Once
 }
 
 func NewApp(addr string) *App {
@@ -64,7 +69,7 @@ func NewApp(addr string) *App {
 		panic(err)
 	}
 	return &App{Token: hex.EncodeToString(b), Addr: addr, state: "idle", removed: map[int]bool{},
-		bins: map[string]*trash.Bin{}, thumbs: newThumbCache(64 << 20), thumbSem: make(chan struct{}, 4)}
+		bins: map[string]*trash.Bin{}, thumbs: newThumbCache(64 << 20), thumbSem: make(chan struct{}, 4), Visited: make(chan struct{})}
 }
 
 // Scan starts a scan. With wait it blocks and returns the scan's error.
@@ -482,6 +487,7 @@ func (a *App) guard(next http.Handler) http.Handler {
 }
 
 func (a *App) index(w http.ResponseWriter, r *http.Request) {
+	a.visitedOnce.Do(func() { close(a.Visited) })
 	page, _ := static.ReadFile("static/index.html")
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-store")

@@ -3,6 +3,7 @@
 package main
 
 import (
+	"os/exec"
 	"syscall"
 	"unsafe"
 )
@@ -32,4 +33,14 @@ func makeUnreadable(path string) (func(), error) {
 		return nil, err
 	}
 	return func() { syscall.CloseHandle(h) }, nil
+}
+
+// browserCommand opens url in the default browser; attempt 1 is a fallback.
+func browserCommand(url string, attempt int) *exec.Cmd {
+	if attempt == 0 {
+		return exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	}
+	cmd := exec.Command("cmd", "/c", "start", "", url)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	return cmd
 }
