@@ -1,0 +1,5 @@
+dist/
+.claude/
+*.exe
+*.test
+*.out
