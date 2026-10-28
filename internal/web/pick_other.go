@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
@@ -22,4 +23,12 @@ func pickFolder(ctx context.Context) (string, error) {
 		return "", nil
 	}
 	return strings.TrimSpace(string(out)), err
+}
+
+// revealFile shows the file in Finder, or opens its folder on Linux.
+func revealFile(path string) error {
+	if runtime.GOOS == "darwin" {
+		return exec.Command("open", "-R", path).Start()
+	}
+	return exec.Command("xdg-open", filepath.Dir(path)).Start()
 }

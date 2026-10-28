@@ -26,3 +26,8 @@ func pickFolder(ctx context.Context) (string, error) {
 	}
 	return strings.TrimSpace(string(out)), nil
 }
+
+// revealFile opens Explorer with the file selected.
+func revealFile(path string) error {
+	return exec.Command("explorer.exe", "/select,", path).Start()
+}

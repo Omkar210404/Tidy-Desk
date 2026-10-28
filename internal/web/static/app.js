@@ -276,7 +276,8 @@ function fileRow(f, g) {
     el('div', { class: 'meta' },
       el('div', { class: 'name' }, name, f.id === g.keep ? el('span', { class: 'badge keep', title: 'Suggested because ' + g.reason }, 'Suggested keep') : null),
       el('div', { class: 'path', title: f.path }, el('bdi', {}, dirName(f.path))),
-      el('div', { class: 'info' }, info.join(' · '))));
+      el('div', { class: 'info' }, info.join(' · '), ' · ',
+        el('button', { class: 'link', title: 'Open the folder that holds this file', onclick: () => api('/api/reveal', { id: f.id }).catch((e) => toast(e.message, { err: true })) }, 'Show in folder'))));
 }
 
 function view(f) {

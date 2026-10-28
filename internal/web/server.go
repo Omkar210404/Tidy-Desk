@@ -389,6 +389,21 @@ func (a *App) saveBins() {
 	os.WriteFile(a.ConfigPath, data, 0o644)
 }
 
+// revealPath returns the path of a file from the latest scan after the same
+// safety checks used for moving it.
+func (a *App) revealPath(id int) (string, error) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	if a.res == nil || id < 0 || id >= len(a.res.Files) || a.removed[id] {
+		return "", errors.New("that file is not in the latest scan")
+	}
+	f := a.res.Files[id]
+	if _, err := a.check(f); err != nil {
+		return "", fmt.Errorf("can't show it: %v", err)
+	}
+	return f.Path, nil
+}
+
 // ---- HTTP ----
 
 // Handler returns the HTTP handler for the UI and API.
@@ -441,6 +456,23 @@ func (a *App) Handler() http.Handler {
 		}
 		rep, err := a.Empty(req.Confirm)
 		a.respond(w, rep, err)
+	})
+	mux.HandleFunc("POST /api/reveal", func(w http.ResponseWriter, r *http.Request) {
+		var req struct {
+			ID int `json:"id"`
+		}
+		if !readJSON(w, r, &req) {
+			return
+		}
+		path, err := a.revealPath(req.ID)
+		if err == nil {
+			err = revealFile(path)
+		}
+		if err != nil {
+			writeErr(w, http.StatusConflict, err)
+			return
+		}
+		writeJSON(w, map[string]bool{"ok": true})
 	})
 	mux.HandleFunc("POST /api/pick", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 10*time.Minute)

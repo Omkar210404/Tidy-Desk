@@ -130,6 +130,8 @@ label.check { display: flex; align-items: center; gap: .5rem; color: var(--text)
 
 .empty { text-align: center; color: var(--muted); padding: 2rem; }
 .warn { color: var(--warn); }
+button.link { background: none; border: 0; padding: 0; color: var(--accent); font-size: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.tiles button.link { display: inline-block; }
 
 .actionbar {
   position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 6;
