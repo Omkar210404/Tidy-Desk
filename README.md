@@ -17,6 +17,7 @@ Find duplicate files and similar photos on your PC and clean them up safely. Tid
 - **Live progress** (server-sent events): files found, data checked, groups found, time left in the current step, and a Cancel button.
 - **Options:** minimum file size, file types (all, photos, videos, documents), and folders to skip.
 - **Suggestions, not decisions.** Each group marks a suggested file to keep, with the reason (original-looking name and folder, oldest copy, shortest path, or most pixels for photos). Nothing moves until you tick files and confirm.
+- **Show in folder** on every file opens Explorer with that file selected, so you can check it before deciding.
 
 The folder walk runs concurrently with a bounded worker pool. Symlinks, junctions, system folders (`C:\Windows`, `$Recycle.Bin`, `.git`, …) and unreadable items are skipped. Problems are counted and listed, never fatal. TidyDesk uses only the Go standard library: zero third-party dependencies.
 
@@ -44,9 +45,11 @@ dist\tidydesk.exe
 |---|---|
 | `tidydesk` | Starts the app on a free port on 127.0.0.1 and opens your browser |
 | `tidydesk --port 8080` / `tidydesk --no-browser` | Use a fixed port, or don't open the browser |
+| `tidydesk --version` | Prints the version (stamped from the git tag by `build.cmd`) |
 | `tidydesk selftest` | Builds a tiny temporary folder (duplicates, near-duplicate images, unique files, an unreadable file), runs the real scanner and the Remove, Undo and Empty actions on it, prints PASS/FAIL per step, then deletes it |
 | `tidydesk bench` | Times a scan of 5,000 generated small files (about 160 MB), then deletes them. Refuses to run with less than 2 GB free |
 | `build.cmd all` | Also builds Linux (amd64) and macOS (arm64) binaries |
+| `go test ./...` | Unit tests for the duplicate stages, similar-photo grouping and TidyDesk Trash |
 
 ## How safety works
 
