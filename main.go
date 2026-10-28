@@ -15,6 +15,9 @@ import (
 	"github.com/Omkar210404/Tidy-Desk/internal/web"
 )
 
+// version is set at build time, e.g. -ldflags "-X main.version=v1.1.0".
+var version = "dev"
+
 func main() {
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
@@ -26,11 +29,16 @@ func main() {
 	}
 	port := flag.Int("port", 0, "port to listen on (default: a free port)")
 	noBrowser := flag.Bool("no-browser", false, "don't open the browser")
+	showVersion := flag.Bool("version", false, "print the version and exit")
 	flag.Usage = func() {
-		fmt.Fprintln(os.Stderr, "Usage:\n  tidydesk [--port N] [--no-browser]   start the app\n  tidydesk selftest                    run the built-in checks\n  tidydesk bench                       time a scan of a small generated dataset")
+		fmt.Fprintln(os.Stderr, "Usage:\n  tidydesk [--port N] [--no-browser]   start the app\n  tidydesk --version                   print the version\n  tidydesk selftest                    run the built-in checks\n  tidydesk bench                       time a scan of a small generated dataset")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
+	if *showVersion {
+		fmt.Println("TidyDesk", version)
+		return
+	}
 
 	ln, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", *port))
 	if err != nil {
@@ -42,7 +50,7 @@ func main() {
 		app.LoadBins()
 	}
 	url := "http://" + ln.Addr().String() + "/"
-	fmt.Printf("TidyDesk is running at %s\nEverything stays on this computer. Keep this window open while you use TidyDesk; close it to stop.\n", url)
+	fmt.Printf("TidyDesk %s is running at %s\nEverything stays on this computer. Keep this window open while you use TidyDesk; close it to stop.\n", version, url)
 	if !*noBrowser {
 		go openBrowser(url, app.Visited)
 	}
