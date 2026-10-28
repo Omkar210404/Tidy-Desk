@@ -21,9 +21,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Omkar210404/TidyDesk/internal/scan"
-	"github.com/Omkar210404/TidyDesk/internal/trash"
-	"github.com/Omkar210404/TidyDesk/internal/web"
+	"github.com/Omkar210404/Tidy-Desk/internal/scan"
+	"github.com/Omkar210404/Tidy-Desk/internal/trash"
+	"github.com/Omkar210404/Tidy-Desk/internal/web"
 )
 
 // selftest builds a tiny folder of known files, runs the real scanner and

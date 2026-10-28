@@ -26,8 +26,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Omkar210404/TidyDesk/internal/scan"
-	"github.com/Omkar210404/TidyDesk/internal/trash"
+	"github.com/Omkar210404/Tidy-Desk/internal/scan"
+	"github.com/Omkar210404/Tidy-Desk/internal/trash"
 )
 
 //go:embed static

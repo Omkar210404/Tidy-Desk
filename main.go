@@ -14,7 +14,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/Omkar210404/TidyDesk/internal/web"
+	"github.com/Omkar210404/Tidy-Desk/internal/web"
 )
 
 func main() {

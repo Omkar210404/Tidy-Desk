@@ -1,3 +1,3 @@
-module github.com/Omkar210404/TidyDesk
+module github.com/Omkar210404/Tidy-Desk
 
 go 1.22

@@ -34,8 +34,8 @@ flowchart LR
 Download `tidydesk.exe` from the Releases page (if one is published) and double-click it, or build it yourself with Go 1.22 or newer:
 
 ```
-git clone https://github.com/Omkar210404/TidyDesk
-cd TidyDesk
+git clone https://github.com/Omkar210404/Tidy-Desk
+cd Tidy-Desk
 build.cmd            :: makes dist\tidydesk.exe  (or: go build -o dist/tidydesk.exe .)
 dist\tidydesk.exe
 ```
