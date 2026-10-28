@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="tidydesk-token" content="%TOKEN%">
+<title>TidyDesk</title>
+<link rel="icon" href="/static/icon.svg">
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="/static/icon.svg" alt="" width="28" height="28"><span>TidyDesk</span></div>
+  <div class="trash" id="trash" aria-live="polite">
+    <span id="trashText">TidyDesk Trash is empty</span>
+    <button id="undoBtn" class="ghost" disabled>Undo last move</button>
+    <button id="emptyBtn" class="ghost danger" disabled>Empty TidyDesk Trash</button>
+  </div>
+  <button id="themeBtn" class="ghost icon" title="Switch light / dark theme" aria-label="Switch light or dark theme">&#9680;</button>
+</header>
+
+<main>
+  <section class="card" id="setup">
+    <h1>Free up space, safely.</h1>
+    <p class="muted">TidyDesk finds exact duplicate files and similar photos in the folders you choose. Everything stays on this computer: nothing is uploaded, and nothing is deleted without your say-so.</p>
+    <form id="addForm" class="row">
+      <input id="folderInput" autocomplete="off" spellcheck="false" placeholder="Paste a folder path, e.g. C:\Users\you\Pictures" aria-label="Folder path">
+      <button type="submit" class="secondary">Add folder</button>
+      <button type="button" id="browseBtn" class="secondary">Browse&hellip;</button>
+    </form>
+    <ul id="folders" class="chips" aria-label="Folders to scan"></ul>
+    <details class="options">
+      <summary>Options</summary>
+      <div class="grid">
+        <label>File types
+          <select id="kind">
+            <option value="all">All files</option>
+            <option value="photos">Photos</option>
+            <option value="videos">Videos</option>
+            <option value="documents">Documents</option>
+          </select>
+        </label>
+        <label>Ignore files smaller than
+          <select id="minSize">
+            <option value="1">No limit</option>
+            <option value="1024">1 KB</option>
+            <option value="102400">100 KB</option>
+            <option value="1048576">1 MB</option>
+            <option value="10485760">10 MB</option>
+          </select>
+        </label>
+        <label class="wide">Skip these folders (one per line: a full path, or just a folder name)
+          <textarea id="exclude" rows="3" spellcheck="false" placeholder="node_modules&#10;D:\Backups\Old"></textarea>
+        </label>
+        <label class="check"><input type="checkbox" id="similar" checked> Also look for similar photos (JPEG and PNG)</label>
+      </div>
+    </details>
+    <div class="row end"><button id="scanBtn" class="primary big" disabled>Scan</button></div>
+  </section>
+
+  <section class="card hidden" id="progress" aria-live="polite">
+    <div class="row between">
+      <div><p class="eyebrow" id="pStep">Step 1 of 4</p><h2 id="pPhase">Finding files&hellip;</h2></div>
+      <button id="cancelBtn" class="secondary">Cancel</button>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+    <dl class="stats">
+      <div><dt>Files found</dt><dd id="pFiles">0</dd></div>
+      <div><dt>Data checked</dt><dd id="pBytes">0 B</dd></div>
+      <div><dt>Groups found</dt><dd id="pGroups">0</dd></div>
+      <div><dt>Time left (this step)</dt><dd id="pEta">estimating&hellip;</dd></div>
+    </dl>
+    <p class="muted small" id="pErrors"></p>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="card hero">
+      <div>
+        <p class="eyebrow">You can free</p>
+        <p class="huge" id="freeBig">0 B</p>
+        <p id="freeSub" class="muted"></p>
+      </div>
+      <div class="hero-side">
+        <p id="scanMeta" class="muted small"></p>
+        <details id="errBox" class="hidden"><summary id="errSummary"></summary><ul id="errList" class="small muted"></ul></details>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabExact" aria-selected="true">Exact duplicates <span class="count" id="cExact">0</span></button>
+      <button role="tab" id="tabSimilar" aria-selected="false">Similar photos <span class="count" id="cSimilar">0</span></button>
+    </div>
+
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Filter by name or folder  ( / )" aria-label="Filter by name or folder">
+      <select id="typeFilter" aria-label="File type">
+        <option value="">All types</option><option value="photo">Photos</option><option value="video">Videos</option>
+        <option value="document">Documents</option><option value="other">Other</option>
+      </select>
+      <select id="sort" aria-label="Sort groups">
+        <option value="wasted">Most space wasted</option><option value="size">Largest files</option>
+        <option value="count">Most copies</option><option value="path">Folder name</option>
+      </select>
+      <button id="pickSuggested" class="secondary" title="Ticks every file except the suggested one to keep, in the groups shown">Tick all but suggested</button>
+      <button id="clearSel" class="ghost">Clear ticks</button>
+    </div>
+
+    <div id="simBar" class="simbar hidden">
+      <div class="row">
+        <label for="sim">How alike?</label>
+        <span class="small muted">Near-identical</span>
+        <input type="range" id="sim" min="0" max="16" value="8">
+        <span class="small muted">Loosely similar</span>
+      </div>
+      <p class="note">Similar is not identical. These photos look alike but can differ: edits, crops, size or quality. Look at them before you remove any.</p>
+    </div>
+
+    <div id="groups"></div>
+    <p id="emptyMsg" class="empty hidden"></p>
+    <div class="row center"><button id="moreBtn" class="secondary hidden">Show more groups</button></div>
+  </section>
+</main>
+
+<div class="actionbar hidden" id="actionBar" role="region" aria-label="Selection">
+  <span id="selText"></span>
+  <span id="selWarn" class="warn small"></span>
+  <button id="moveBtn" class="primary">Move to TidyDesk Trash</button>
+</div>
+
+<dialog id="confirmDlg">
+  <h3 id="dlgTitle"></h3>
+  <p id="dlgBody" class="muted"></p>
+  <label id="dlgCheckWrap" class="check hidden"><input type="checkbox" id="dlgCheck"> I understand these files will be deleted for good</label>
+  <div class="row end">
+    <button id="dlgCancel" class="secondary">Cancel</button>
+    <button id="dlgOk" class="primary">OK</button>
+  </div>
+</dialog>
+
+<dialog id="viewDlg" class="viewer">
+  <img id="viewImg" alt="">
+  <p id="viewCap" class="small muted"></p>
+  <div class="row end"><button id="viewClose" class="secondary">Close</button></div>
+</dialog>
+
+<div id="toasts" aria-live="polite"></div>
+</body>
+</html>
