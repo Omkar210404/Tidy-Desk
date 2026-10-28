@@ -31,7 +31,7 @@ flowchart LR
 
 ## Run it
 
-Download `tidydesk.exe` from the Releases page (if one is published) and double-click it, or build it yourself with Go 1.22 or newer:
+**[Download tidydesk.exe](https://github.com/Omkar210404/Tidy-Desk/releases/latest/download/tidydesk.exe)** (Windows, 7.6 MB) and double-click it. Windows may show a SmartScreen warning because the exe is not code-signed: click "More info", then "Run anyway". Or build it yourself with Go 1.22 or newer:
 
 ```
 git clone https://github.com/Omkar210404/Tidy-Desk
